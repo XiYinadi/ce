@@ -20,15 +20,29 @@
       text-align: center;
       box-shadow: 0 10px 30px rgba(0,0,0,0.2);
     }
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 15px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 15px;
+      outline: none;
+    }
     button {
       padding: 10px 25px;
       border: none;
       background: #6a95ff;
       color: #fff;
       border-radius: 10px;
-      margin-top: 20px;
+      margin-top: 15px;
       cursor: pointer;
       font-size: 15px;
+    }
+    #result {
+      margin-top: 10px;
+      color: #333;
+      font-size: 14px;
     }
   </style>
 </head>
@@ -37,14 +51,43 @@
   <div class="card">
     <h2 id="info"></h2>
     <button onclick="logout()">退出登录</button>
-  </div>
-  <div class="card">
-      <button onclick="go_tool()">工具页面</button>
-  </div>
-<body>
-
+    <button onclick="go_tool()">工具页面</button>
     
+    <input type="text" id="textInput" placeholder="输入文本">
+    <button id="sendBtn">发送</button>
+    <div id="result"></div>
+  </div>
+
 <script>
+  const textInput = document.getElementById('textInput');
+  const sendBtn = document.getElementById('sendBtn');
+  const resultDiv = document.getElementById('result');
+
+  sendBtn.addEventListener('click', async () => {
+    const text = textInput.value.trim();
+    if (!text) {
+      resultDiv.textContent = '请输入文本后再发送';
+      return;
+    }
+
+    // 获取当前时间
+  const TIME = new Date().toISOString();
+
+  try {
+    const response = await fetch('https://c4ggspjp2w.hzh.sealos.run/add_text', { 
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, TIME })  // 添加时间字段
+    });
+
+      const result = await response.json();
+      resultDiv.textContent = '发送成功: ' + JSON.stringify(result);
+      textInput.value = '';
+    } catch (err) {
+      resultDiv.textContent = '发送失败: ' + err.message;
+    }
+  });
+
   const user = JSON.parse(localStorage.getItem("user"));
   if (!user) window.location.href = "login.html";
 
@@ -55,9 +98,9 @@
     window.location.href = "login.html";
   }
 
-    function go_tool() {
-        window.location.href = "tool.html";
-    }
+  function go_tool() {
+    window.location.href = "tool.html";
+  }
 </script>
 </body>
 </html>
