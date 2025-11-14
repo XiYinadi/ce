@@ -1,192 +1,271 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-  <meta charset="UTF-8">
-  <title>Login & Register</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: "Arial", sans-serif;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cyber Login</title>
 
-    body {
-      background: linear-gradient(145deg, #6a95ff, #9ec9ff);
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+<style>
+/* =============== 赛博朋克背景 =============== */
+html, body {
+  margin: 0;
+  height: 100%;
+  font-family: "Segoe UI", sans-serif;
+  overflow: hidden;
+  background: #0a0a0f;
+  color: #fff;
+}
 
-    .container {
-      width: 350px;
-      padding: 30px;
-      border-radius: 20px;
-      background: #fff;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-      animation: fadeIn 0.5s ease;
-    }
+/* 粒子星空背景 */
+canvas#bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -1;
+}
 
-    @keyframes fadeIn {
-      from { transform: translateY(40px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
+/* 赛博网格 */
+.cyber-grid {
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+      to right,
+      rgba(120, 0, 255, 0.1) 0px,
+      rgba(120, 0, 255, 0.1) 1px,
+      transparent 1px,
+      transparent 80px
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      rgba(120, 0, 255, 0.1) 0px,
+      rgba(120, 0, 255, 0.1) 1px,
+      transparent 1px,
+      transparent 80px
+    );
+  z-index: -1;
+  animation: gridmove 12s linear infinite;
+}
+@keyframes gridmove {
+  from { transform: translateY(0); }
+  to   { transform: translateY(80px); }
+}
 
-    .tabs {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 20px;
-    }
+/* =============== 整体容器（3D 翻转） =============== */
+.container {
+  width: 360px;
+  height: 420px;
+  margin: 120px auto;
+  perspective: 1000px;
+}
 
-    .tab {
-      width: 50%;
-      text-align: center;
-      padding: 10px 0;
-      cursor: pointer;
-      font-size: 18px;
-      border-bottom: 3px solid transparent;
-      transition: 0.3s;
-    }
+.card {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: 1s;
+}
 
-    .active {
-      border-bottom: 3px solid #6a95ff;
-      font-weight: bold;
-      color: #6a95ff;
-    }
+.card.flip {
+  transform: rotateY(180deg);
+}
 
-    input {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 15px;
-    }
+/* 两面 */
+.page {
+  position: absolute;
+  inset: 0;
+  background: rgba(20, 20, 35, 0.75);
+  border: 1px solid rgba(120, 0, 255, 0.6);
+  border-radius: 20px;
+  box-shadow: 0 0 25px rgba(120, 0, 255, 0.5);
+  backdrop-filter: blur(8px);
+  padding: 30px;
+  backface-visibility: hidden;
+}
 
-    button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 15px;
-      background: #6a95ff;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      font-size: 17px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
+.page h2 {
+  text-align: center;
+  font-size: 26px;
+  margin-bottom: 20px;
+  text-shadow: 0 0 10px #a020f0;
+}
 
-    button:hover {
-      background: #517dff;
-    }
+/* 输入框 */
+input {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0 20px;
+  background: #0e0e18;
+  border: 1px solid rgba(155, 0, 255, 0.7);
+  border-radius: 8px;
+  color: #fff;
+  outline: none;
+  font-size: 16px;
+  transition: 0.3s;
+}
+input:focus {
+  box-shadow: 0 0 12px rgba(155, 0, 255, 0.8);
+}
 
-    #msg {
-      margin-top: 10px;
-      text-align: center;
-      color: #ff4b4b;
-      min-height: 20px;
-      font-size: 14px;
-    }
+/* 按钮（霓虹紫发光） */
+button {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #a020f0, #4e0fff);
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 17px;
+  cursor: pointer;
+  box-shadow: 0 0 15px rgba(160, 32, 240, 0.7);
+  transition: 0.3s;
+}
+button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 30px rgba(200, 0, 255, 1);
+}
 
-    .hidden { display: none; }
-  </style>
+.switch {
+  text-align: center;
+  margin-top: 20px;
+  cursor: pointer;
+  color: #a050ff;
+}
+.switch:hover {
+  text-shadow: 0 0 10px #a050ff;
+}
+
+/* 注册页翻转 */
+.register {
+  transform: rotateY(180deg);
+}
+
+.success-box {
+  position: fixed;
+  top: 30px;
+  right: 20px;
+  background: rgba(50,50,70,.8);
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: 1px solid #6f00ff;
+  box-shadow: 0 0 15px #6f00ff;
+}
+</style>
 </head>
 
 <body>
-  <div class="container">
+<canvas id="bg"></canvas>
+<div class="cyber-grid"></div>
 
-    <div class="tabs">
-      <div id="tab-login" class="tab active" onclick="switchTab('login')">登录</div>
-      <div id="tab-register" class="tab" onclick="switchTab('register')">注册</div>
-    </div>
+<div class="container">
+  <div class="card" id="card">
 
     <!-- 登录 -->
-    <div id="login-box">
-      <input id="loginName" placeholder="用户名">
-      <input id="loginPwd" type="password" placeholder="密码">
-      <button onclick="login()">登录</button>
+    <div class="page login">
+      <h2>Login</h2>
+      <input id="l_user" placeholder="Username" />
+      <input id="l_pass" type="password" placeholder="Password" />
+      <button onclick="login()">LOGIN</button>
+      <div class="switch" onclick="flip()">No account? Register →</div>
     </div>
 
     <!-- 注册 -->
-    <div id="reg-box" class="hidden">
-      <input id="regName" placeholder="用户名">
-      <input id="regPwd" type="password" placeholder="密码">
-      <button onclick="register()">注册</button>
+    <div class="page register">
+      <h2>Register</h2>
+      <input id="r_user" placeholder="Username" />
+      <input id="r_pass" type="password" placeholder="Password" />
+      <button onclick="registerUser()">REGISTER</button>
+      <div class="switch" onclick="flip()">← Back to Login</div>
     </div>
 
-    <p id="msg"></p>
   </div>
+</div>
 
-  <script>
-    const REGISTER_API = "https://c4ggspjp2w.hzh.sealos.run/add_user";
-    const LOGIN_API = "https://c4ggspjp2w.hzh.sealos.run/login";
+<!-- =============== 粒子流星效果 =============== -->
+<script>
+const canvas = document.getElementById("bg");
+const ctx = canvas.getContext("2d");
+let w, h, particles;
 
-    function switchTab(type) {
-      document.getElementById("tab-login").classList.remove("active");
-      document.getElementById("tab-register").classList.remove("active");
-      document.getElementById("login-box").classList.add("hidden");
-      document.getElementById("reg-box").classList.add("hidden");
+function init() {
+  w = canvas.width = innerWidth;
+  h = canvas.height = innerHeight;
+  particles = Array.from({ length: 120 }, () => ({
+    x: Math.random() * w,
+    y: Math.random() * h,
+    speed: Math.random() * 2 + 1,
+    size: Math.random() * 2 + 1,
+  }));
+}
 
-      if (type === "login") {
-        document.getElementById("tab-login").classList.add("active");
-        document.getElementById("login-box").classList.remove("hidden");
-      } else {
-        document.getElementById("tab-register").classList.add("active");
-        document.getElementById("reg-box").classList.remove("hidden");
-      }
-    }
+function draw() {
+  ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = "rgba(160, 32, 240, 0.8)";
+  particles.forEach(p => {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    ctx.fill();
+    p.y += p.speed;
+    if (p.y > h) p.y = -5;
+  });
+  requestAnimationFrame(draw);
+}
+init();
+draw();
+onresize = init;
+</script>
 
-    // 注册
-    async function register() {
-      const username = document.getElementById("regName").value.trim();
-      const password = document.getElementById("regPwd").value.trim();
-      const msg = document.getElementById("msg");
+<!-- =============== 登录 / 注册 逻辑 =============== -->
+<script>
+const API_REGISTER = "https://你的LAF云函数地址/register";
+const API_LOGIN = "https://你的LAF云函数地址/login";
 
-      if (!username || !password) {
-        msg.innerText = "请输入完整信息";
-        return;
-      }
+function flip() {
+  document.getElementById("card").classList.toggle("flip");
+}
 
-      const res = await fetch(REGISTER_API, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password })
-      });
+function toast(msg) {
+  const box = document.createElement("div");
+  box.className = "success-box";
+  box.innerText = msg;
+  document.body.appendChild(box);
+  setTimeout(() => box.remove(), 2000);
+}
 
-      const data = await res.json();
+// 注册
+async function registerUser() {
+  const username = document.getElementById("r_user").value;
+  const password = document.getElementById("r_pass").value;
 
-      if (data.code === 0) msg.innerText = "注册成功！去登录 →";
-      else if (data.code === 1) msg.innerText = "用户名已存在";
-      else msg.innerText = "注册失败：" + data.msg;
-    }
+  const res = await fetch(API_REGISTER, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, password })
+  }).then(r => r.json());
 
-    // 登录
-    async function login() {
-      const username = document.getElementById("loginName").value.trim();
-      const password = document.getElementById("loginPwd").value.trim();
-      const msg = document.getElementById("msg");
+  toast(res.msg);
+  if (res.code === 0) flip();
+}
 
-      if (!username || !password) {
-        msg.innerText = "请输入用户名和密码";
-        return;
-      }
+// 登录
+async function login() {
+  const username = document.getElementById("l_user").value;
+  const password = document.getElementById("l_pass").value;
 
-      const res = await fetch(LOGIN_API, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password })
-      });
+  const res = await fetch(API_LOGIN, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, password })
+  }).then(r => r.json());
 
-      const data = await res.json();
+  toast(res.msg);
+  if (res.code === 0) {
+    setTimeout(() => {
+      window.location.href = "home.html"; // 登录成功跳转页面
+    }, 800);
+  }
+}
+</script>
 
-      if (data.code === 0) {
-        localStorage.setItem("user", JSON.stringify(data.user));
-        window.location.href = "login_home.html";
-      } else if (data.code === 1) msg.innerText = "用户不存在";
-      else if (data.code === 2) msg.innerText = "密码错误";
-      else msg.innerText = "登录失败：" + data.msg;
-    }
-  </script>
 </body>
 </html>
