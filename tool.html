@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>Home</title>
+  <style>
+    body {
+      background: linear-gradient(145deg, #83b5ff, #b1d1ff);
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: Arial;
+    }
+    .card {
+      background: #fff;
+      padding: 30px;
+      border-radius: 20px;
+      width: 350px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    button {
+      padding: 10px 25px;
+      border: none;
+      background: #6a95ff;
+      color: #fff;
+      border-radius: 10px;
+      margin-top: 20px;
+      cursor: pointer;
+      font-size: 15px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+    <h2 id="info"></h2>
+    <button onclick="ce()">摄像头</button>
+  </div>
+</body>
+
+<script>
+ 
+ function ce() {
+        window.location.href = "ce.html";
+    }
+</script>
