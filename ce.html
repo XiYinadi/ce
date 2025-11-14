@@ -1,29 +1,87 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
+    <meta charset="UTF-8">
     <title>拍照上传示例</title>
     <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #0a0a0a, #1c0033, #0a0a0a);
+            font-family: 'Orbitron', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #0ff;
+        }
+
         #camera-container {
+            background: rgba(0,0,0,0.85);
+            padding: 25px 35px;
+            border-radius: 25px;
+            box-shadow: 0 0 50px #0ff, 0 0 100px #f0f;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
+            gap: 20px;
         }
+
+        video, #preview {
+            border: 3px solid #0ff;
+            border-radius: 12px;
+            width: 640px;
+            height: 480px;
+            transform: scaleX(-1); /* 镜像翻转 */
+            box-shadow: 0 0 20px #0ff inset, 0 0 30px #f0f;
+        }
+
         #preview {
-            border: 1px solid #ccc;
-            max-width: 100%;
+            object-fit: cover;
         }
-        .hidden {
-            display: none;
+
+        button {
+            padding: 12px 28px;
+            margin: 0 6px;
+            border: 2px solid #0ff;
+            border-radius: 12px;
+            background: linear-gradient(45deg, #ff00ff, #00ffff);
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+            text-transform: uppercase;
+            box-shadow: 0 0 15px #0ff, 0 0 25px #ff00ff;
+            transition: all 0.3s ease;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        button:hover:not(:disabled) {
+            transform: scale(1.08);
+            box-shadow: 0 0 25px #00ffff, 0 0 35px #ff00ff;
+        }
+
+        #result {
+            margin-top: 15px;
+            font-size: 15px;
+            text-align: center;
+            color: #0ff;
+            text-shadow: 0 0 5px #0ff;
         }
     </style>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
 </head>
 <body>
     <div id="camera-container">
-        <video id="video" width="640" height="480" autoplay></video>
-        <canvas id="canvas" class="hidden"></canvas>
+        <video id="video" autoplay playsinline></video>
+        <canvas id="canvas" style="display:none;"></canvas>
         <img id="preview" alt="照片预览">
-        
+
         <div>
             <button id="start">打开摄像头</button>
             <button id="capture" disabled>拍照</button>
@@ -44,8 +102,7 @@
         let mediaStream = null;
         let capturedImage = null;
 
-        // 打开摄像头
-        startBtn.addEventListener('click', async () => {
+        async function initCamera() {
             try {
                 mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
                 video.srcObject = mediaStream;
@@ -54,32 +111,31 @@
             } catch (err) {
                 resultDiv.textContent = '无法访问摄像头: ' + err.message;
             }
-        });
+        }
 
-        // 拍照
+        window.addEventListener('load', initCamera);
+        startBtn.addEventListener('click', initCamera);
+
         captureBtn.addEventListener('click', () => {
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
-            canvas.getContext('2d').drawImage(video, 0, 0);
-            
+            const ctx = canvas.getContext('2d');
+            ctx.translate(canvas.width, 0);
+            ctx.scale(-1, 1);
+            ctx.drawImage(video, 0, 0);
+
             capturedImage = canvas.toDataURL('image/jpeg');
             preview.src = capturedImage;
             uploadBtn.disabled = false;
         });
 
-        // 上传图片
         uploadBtn.addEventListener('click', async () => {
             if (!capturedImage) return;
-
             try {
-                // 转换为Blob对象
                 const blob = await fetch(capturedImage).then(res => res.blob());
-                
-                // 创建FormData
                 const formData = new FormData();
                 formData.append('photo', blob, 'photo.jpg');
 
-                // 发送到服务器（需要替换为你的上传地址）
                 const response = await fetch('https://s8u1ihmke1.bja.sealos.run/get-cemera', {
                     method: 'POST',
                     body: formData
@@ -92,7 +148,6 @@
             }
         });
 
-        // 关闭摄像头（可选）
         window.addEventListener('beforeunload', () => {
             if (mediaStream) {
                 mediaStream.getTracks().forEach(track => track.stop());
